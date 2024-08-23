@@ -298,7 +298,10 @@ func (h *HTTPTransport) NewTransport(caddyCtx caddy.Context) (*http.Transport, e
 
 	// negotiate any HTTP/SOCKS proxy for the HTTP transport
 	var proxy func(*http.Request) (*url.URL, error)
-	if h.ForwardProxyURL != "" {
+	if h.ForwardProxyURL == "no_proxy" {
+		caddyCtx.Logger().Warn("setting transport proxy to nil --> no proxy")
+		proxy = nil
+	} else if h.ForwardProxyURL != "" {
 		pUrl, err := url.Parse(h.ForwardProxyURL)
 		if err != nil {
 			return nil, fmt.Errorf("failed to parse transport proxy url: %v", err)
